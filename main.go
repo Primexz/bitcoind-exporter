@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/Primexz/bitcoind-exporter/config"
 	log "github.com/sirupsen/logrus"
 	prefixed "github.com/x-cray/logrus-prefixed-formatter"
 )
@@ -17,5 +18,5 @@ func init() {
 }
 
 func main() {
-	log.Info("Hey")
+	log.Info(config.C.RPCAddress)
 }
