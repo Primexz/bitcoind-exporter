@@ -2,7 +2,6 @@ package zmq
 
 import (
 	"context"
-	"time"
 
 	"github.com/Primexz/bitcoind-exporter/config"
 	prometheus "github.com/Primexz/bitcoind-exporter/prometheus/metrics"
@@ -36,8 +35,6 @@ func Start() {
 		log.WithError(err).Fatal("could not set option")
 	}
 
-	go resetTransactionCount()
-
 	log.WithField("address", address).Info("Listening for zmq messages")
 
 	for {
@@ -49,18 +46,6 @@ func Start() {
 
 		log.WithField("sequence", msg.Frames[2]).Trace("Transaction received")
 
-		trackTransactionCount()
+		prometheus.TransactionsPerSecond.Inc()
 	}
-}
-
-func resetTransactionCount() {
-	for {
-		prometheus.TransactionsPerSecond.Set(0)
-		time.Sleep(time.Second)
-	}
-}
-
-func trackTransactionCount() {
-	prometheus.TransactionsPerSecond.Inc()
-
 }
