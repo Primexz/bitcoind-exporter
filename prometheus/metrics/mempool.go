@@ -15,4 +15,9 @@ var (
 		Name: "bitcoind_mempool_max",
 		Help: "Maximum memory usage for the mempool in bytes",
 	})
+
+	MempoolTransactionCount = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "bitcoind_mempool_transaction_count",
+		Help: "Total number of transactions in the mempool",
+	})
 )

@@ -45,6 +45,7 @@ func run() {
 	//Mempool
 	prometheus.MempoolUsage.Set(float64(memPoolInfo.Usage))
 	prometheus.MempoolMax.Set(float64(memPoolInfo.MaxMempool))
+	prometheus.MempoolTransactionCount.Set(float64(memPoolInfo.Size))
 
 	//Memory
 	prometheus.MemoryUsed.Set(float64(memoryInfo.Locked.Used))
