@@ -2,6 +2,8 @@ package main
 
 import (
 	"github.com/Primexz/bitcoind-exporter/config"
+	"github.com/Primexz/bitcoind-exporter/fetcher"
+	"github.com/Primexz/bitcoind-exporter/prometheus"
 	log "github.com/sirupsen/logrus"
 	prefixed "github.com/x-cray/logrus-prefixed-formatter"
 )
@@ -19,4 +21,8 @@ func init() {
 
 func main() {
 	log.Info(config.C.RPCAddress)
+
+	go prometheus.Start()
+
+	fetcher.Start()
 }

@@ -1,0 +1,105 @@
+package fetcher
+
+import (
+	"context"
+	"time"
+
+	"github.com/Primexz/bitcoind-exporter/config"
+	prometheus "github.com/Primexz/bitcoind-exporter/prometheus/metrics"
+	"github.com/Primexz/bitcoind-exporter/util"
+	"github.com/sirupsen/logrus"
+)
+
+type Person struct {
+	BestBlockhash string `json:"bestblockhash"`
+}
+
+var log = logrus.WithFields(logrus.Fields{
+	"prefix": "fetcher",
+})
+
+func Start() {
+	for {
+		run()
+
+		time.Sleep(time.Duration(config.C.FetchInterval) * time.Second)
+	}
+}
+
+func run() {
+	blockChainInfo := getBlockchainInfo()
+	memPoolInfo := getMempoolInfo()
+	memoryInfo := getMemoryInfo()
+	indexInfo := getIndexInfo()
+
+	if blockChainInfo == nil || memPoolInfo == nil || memoryInfo == nil || indexInfo == nil {
+		log.Error("Failed to fetch data")
+		return
+	}
+
+	//Blockchain
+	prometheus.BlockchainBlocks.Set(float64(blockChainInfo.Blocks))
+	prometheus.BlockchainHeaders.Set(float64(blockChainInfo.Headers))
+	prometheus.BlockchainVerificationProgress.Set(blockChainInfo.VerificationProgress)
+	prometheus.BlockchainSizeOnDisk.Set(float64(blockChainInfo.SizeOnDisk))
+
+	//Mempool
+	prometheus.MempoolUsage.Set(float64(memPoolInfo.Usage))
+	prometheus.MempoolMax.Set(float64(memPoolInfo.MaxMempool))
+
+	//Memory
+	prometheus.MemoryUsed.Set(float64(memoryInfo.Locked.Used))
+	prometheus.MemoryFree.Set(float64(memoryInfo.Locked.Free))
+	prometheus.MemoryTotal.Set(float64(memoryInfo.Locked.Total))
+	prometheus.MemoryLocked.Set(float64(memoryInfo.Locked.Locked))
+	prometheus.ChunksUsed.Set(float64(memoryInfo.Locked.ChunksUsed))
+	prometheus.ChunksFree.Set(float64(memoryInfo.Locked.ChunksFree))
+
+	//TxIndex
+	prometheus.TxIndexSynced.Set(float64(util.BoolToFloat64(indexInfo.TxIndex.Synced)))
+	prometheus.TxIndexBestHeight.Set(float64(indexInfo.TxIndex.BestBlockHeight))
+}
+
+func getBlockchainInfo() *BlockchainInfo {
+	var info *BlockchainInfo
+	err := rpcClient.CallFor(context.TODO(), &info, "getblockchaininfo")
+	if err != nil {
+		log.WithError(err).Error("Failed to call RPC")
+		return nil
+	}
+
+	return info
+}
+
+func getMempoolInfo() *MempoolInfo {
+	var info *MempoolInfo
+	err := rpcClient.CallFor(context.TODO(), &info, "getmempoolinfo")
+	if err != nil {
+		log.WithError(err).Error("Failed to call RPC")
+		return nil
+	}
+
+	return info
+}
+
+func getMemoryInfo() *MemoryInfo {
+	var info *MemoryInfo
+	err := rpcClient.CallFor(context.TODO(), &info, "getmemoryinfo")
+	if err != nil {
+		log.WithError(err).Error("Failed to call RPC")
+		return nil
+	}
+
+	return info
+}
+
+func getIndexInfo() *IndexInfo {
+	var info *IndexInfo
+	err := rpcClient.CallFor(context.TODO(), &info, "getindexinfo")
+	if err != nil {
+		log.WithError(err).Error("Failed to call RPC")
+		return nil
+	}
+
+	return info
+}

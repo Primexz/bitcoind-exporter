@@ -9,6 +9,10 @@ type config struct {
 	RPCAddress string `env:"RPC_ADDRESS,required"`
 	RPCUser    string `env:"RPC_USER,required"`
 	RPCPass    string `env:"RPC_PASS,required"`
+
+	FetchInterval int `env:"FETCH_INTERVAL" envDefault:"10"`
+
+	MetricPort int `env:"METRIC_PORT" envDefault:"3000"`
 }
 
 var (
