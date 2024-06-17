@@ -6,6 +6,7 @@ import (
 	"github.com/Primexz/bitcoind-exporter/config"
 	"github.com/Primexz/bitcoind-exporter/fetcher"
 	"github.com/Primexz/bitcoind-exporter/prometheus"
+	"github.com/Primexz/bitcoind-exporter/zmq"
 	log "github.com/sirupsen/logrus"
 	prefixed "github.com/x-cray/logrus-prefixed-formatter"
 )
@@ -36,6 +37,7 @@ func main() {
 	}).Infof("Bitcoind Exporter ₿ %s", version)
 
 	go prometheus.Start()
+	go zmq.Start()
 
 	fetcher.Start()
 }

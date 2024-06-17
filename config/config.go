@@ -10,6 +10,8 @@ type config struct {
 	RPCUser    string `env:"RPC_USER,required"`
 	RPCPass    string `env:"RPC_PASS,required"`
 
+	ZmqAddress string `env:"ZMQ_ADDRESS"`
+
 	FetchInterval int `env:"FETCH_INTERVAL" envDefault:"10"`
 	MetricPort    int `env:"METRIC_PORT" envDefault:"3000"`
 
