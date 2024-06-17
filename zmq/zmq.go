@@ -44,7 +44,8 @@ func Start() {
 			log.WithError(err).Fatal("could not receive")
 		}
 
-		log.WithField("sequence", msg.Frames[2]).Trace("Transaction received")
+		transaction := string(msg.Frames[1])
+		log.WithField("transaction", transaction).Debug("Received transaction")
 
 		prometheus.TransactionsPerSecond.Inc()
 	}

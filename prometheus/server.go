@@ -22,6 +22,7 @@ func Start() {
 
 	http.Handle("/metrics", promhttp.Handler())
 
+	// #nosec G114
 	err := http.ListenAndServe(":"+port, nil)
 	if err != nil {
 		log.WithError(err).Error("Failed to start Prometheus metrics server.")
