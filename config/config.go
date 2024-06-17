@@ -11,8 +11,9 @@ type config struct {
 	RPCPass    string `env:"RPC_PASS,required"`
 
 	FetchInterval int `env:"FETCH_INTERVAL" envDefault:"10"`
+	MetricPort    int `env:"METRIC_PORT" envDefault:"3000"`
 
-	MetricPort int `env:"METRIC_PORT" envDefault:"3000"`
+	LogLevel string `env:"LOG_LEVEL" envDefault:"info"`
 }
 
 var (

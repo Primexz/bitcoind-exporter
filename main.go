@@ -1,6 +1,8 @@
 package main
 
 import (
+	"runtime"
+
 	"github.com/Primexz/bitcoind-exporter/config"
 	"github.com/Primexz/bitcoind-exporter/fetcher"
 	"github.com/Primexz/bitcoind-exporter/prometheus"
@@ -17,10 +19,21 @@ func init() {
 	})
 
 	log.SetReportCaller(true)
+
+	level, err := log.ParseLevel(config.C.LogLevel)
+	if err != nil {
+		log.WithError(err).Fatal("Invalid log level")
+	}
+
+	log.SetLevel(level)
 }
 
 func main() {
-	log.Info(config.C.RPCAddress)
+	log.WithFields(log.Fields{
+		"commit":  commit,
+		"runtime": runtime.Version(),
+		"arch":    runtime.GOARCH,
+	}).Infof("Bitcoind Exporter ₿ %s", version)
 
 	go prometheus.Start()
 
