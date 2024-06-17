@@ -1,0 +1,33 @@
+project_name: bitcoind-exporter
+builds:
+- env:
+  - CGO_ENABLED=0
+  binary: bitcoind-exporter
+  goos:
+  - linux
+  goarch:
+  - amd64
+  - arm64
+dockers:
+- image_templates:
+  - "ghcr.io/primexz/bitcoind-exporter:{{ .Version }}-amd64"
+  use: buildx
+  dockerfile: Dockerfile
+  build_flag_templates:
+  - "--platform=linux/amd64"
+- image_templates:
+  - "ghcr.io/primexz/bitcoind-exporter:{{ .Version }}-arm64v8"
+  use: buildx
+  goarch: arm64
+  dockerfile: Dockerfile
+  build_flag_templates:
+  - "--platform=linux/arm64/v8"
+docker_manifests:
+- name_template: "ghcr.io/primexz/bitcoind-exporter:{{ .Version }}"
+  image_templates:
+  - "ghcr.io/primexz/bitcoind-exporter:{{ .Version }}-amd64"
+  - "ghcr.io/primexz/bitcoind-exporter:{{ .Version }}-arm64v8"
+- name_template: "ghcr.io/primexz/bitcoind-exporter:latest"
+  image_templates:
+  - "ghcr.io/primexz/bitcoind-exporter:{{ .Version }}-amd64"
+  - "ghcr.io/primexz/bitcoind-exporter:{{ .Version }}-arm64v8"

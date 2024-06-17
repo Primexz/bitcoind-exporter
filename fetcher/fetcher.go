@@ -10,10 +10,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type Person struct {
-	BestBlockhash string `json:"bestblockhash"`
-}
-
 var log = logrus.WithFields(logrus.Fields{
 	"prefix": "fetcher",
 })
@@ -27,12 +23,15 @@ func Start() {
 }
 
 func run() {
+	start := time.Now()
+
 	blockChainInfo := getBlockchainInfo()
 	memPoolInfo := getMempoolInfo()
 	memoryInfo := getMemoryInfo()
 	indexInfo := getIndexInfo()
+	networkInfo := getNetworkInfo()
 
-	if blockChainInfo == nil || memPoolInfo == nil || memoryInfo == nil || indexInfo == nil {
+	if blockChainInfo == nil || memPoolInfo == nil || memoryInfo == nil || indexInfo == nil || networkInfo == nil {
 		log.Error("Failed to fetch data")
 		return
 	}
@@ -58,6 +57,14 @@ func run() {
 	//TxIndex
 	prometheus.TxIndexSynced.Set(float64(util.BoolToFloat64(indexInfo.TxIndex.Synced)))
 	prometheus.TxIndexBestHeight.Set(float64(indexInfo.TxIndex.BestBlockHeight))
+
+	//Network
+	prometheus.TotalConnections.Set(float64(networkInfo.TotalConnections))
+	prometheus.ConnectionsIn.Set(float64(networkInfo.ConnectionsIn))
+	prometheus.ConnectionsOut.Set(float64(networkInfo.TotalConnections - networkInfo.ConnectionsIn))
+
+	//Internal
+	prometheus.ScrapeTime.Set(float64(time.Since(start).Milliseconds()))
 }
 
 func getBlockchainInfo() *BlockchainInfo {
@@ -96,6 +103,17 @@ func getMemoryInfo() *MemoryInfo {
 func getIndexInfo() *IndexInfo {
 	var info *IndexInfo
 	err := rpcClient.CallFor(context.TODO(), &info, "getindexinfo")
+	if err != nil {
+		log.WithError(err).Error("Failed to call RPC")
+		return nil
+	}
+
+	return info
+}
+
+func getNetworkInfo() *NetworkInfo {
+	var info *NetworkInfo
+	err := rpcClient.CallFor(context.TODO(), &info, "getnetworkinfo")
 	if err != nil {
 		log.WithError(err).Error("Failed to call RPC")
 		return nil

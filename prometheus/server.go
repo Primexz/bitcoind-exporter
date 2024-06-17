@@ -21,5 +21,9 @@ func Start() {
 	log.WithField("port", port).Info("Starting Prometheus metrics server.")
 
 	http.Handle("/metrics", promhttp.Handler())
-	http.ListenAndServe(":"+port, nil)
+
+	err := http.ListenAndServe(":"+port, nil)
+	if err != nil {
+		log.WithError(err).Error("Failed to start Prometheus metrics server.")
+	}
 }

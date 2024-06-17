@@ -47,3 +47,18 @@ type IndexInfo struct {
 		BestBlockHeight int  `json:"best_block_height"`
 	}
 }
+
+type NetworkInfo struct {
+	Version            int      `json:"version"`
+	Subversion         string   `json:"subversion"`
+	ProtocolVersion    int      `json:"protocolversion"`
+	LocalServices      string   `json:"localservices"`
+	LocalServicesNames []string `json:"localservicesnames"`
+	LocalRelay         bool     `json:"localrelay"`
+	Timeoffset         int      `json:"timeoffset"`
+	TotalConnections   int      `json:"connections"`
+	ConnectionsIn      int      `json:"connections_in"`
+	ConnectionsOut     int      `json:"connections_out"`
+	RelayFee           float64  `json:"relayfee"`
+	IncrementalFee     float64  `json:"incrementalfee"`
+}
