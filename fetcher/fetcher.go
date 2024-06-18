@@ -6,6 +6,8 @@ import (
 
 	"github.com/Primexz/bitcoind-exporter/config"
 	prometheus "github.com/Primexz/bitcoind-exporter/prometheus/metrics"
+	goprom "github.com/prometheus/client_golang/prometheus"
+
 	"github.com/Primexz/bitcoind-exporter/util"
 	"github.com/sirupsen/logrus"
 )
@@ -31,7 +33,11 @@ func run() {
 	indexInfo := getIndexInfo()
 	networkInfo := getNetworkInfo()
 
-	if blockChainInfo == nil || memPoolInfo == nil || memoryInfo == nil || indexInfo == nil || networkInfo == nil {
+	feeRate2 := getSmartFee(2)
+	feeRate5 := getSmartFee(5)
+	feeRate20 := getSmartFee(20)
+
+	if util.AnyNil(blockChainInfo, memPoolInfo, memoryInfo, indexInfo, networkInfo, feeRate2, feeRate5, feeRate20) {
 		log.Error("Failed to fetch data")
 		return
 	}
@@ -63,6 +69,11 @@ func run() {
 	prometheus.TotalConnections.Set(float64(networkInfo.TotalConnections))
 	prometheus.ConnectionsIn.Set(float64(networkInfo.ConnectionsIn))
 	prometheus.ConnectionsOut.Set(float64(networkInfo.TotalConnections - networkInfo.ConnectionsIn))
+
+	//SmartFee with labels
+	prometheus.SmartFee.With(goprom.Labels{"blocks": "2"}).Set(util.ConvertBTCkBToSatVb(feeRate2.Feerate))
+	prometheus.SmartFee.With(goprom.Labels{"blocks": "5"}).Set(util.ConvertBTCkBToSatVb(feeRate5.Feerate))
+	prometheus.SmartFee.With(goprom.Labels{"blocks": "20"}).Set(util.ConvertBTCkBToSatVb(feeRate20.Feerate))
 
 	//Internal
 	prometheus.ScrapeTime.Set(float64(time.Since(start).Milliseconds()))
@@ -115,6 +126,17 @@ func getIndexInfo() *IndexInfo {
 func getNetworkInfo() *NetworkInfo {
 	var info *NetworkInfo
 	err := rpcClient.CallFor(context.TODO(), &info, "getnetworkinfo")
+	if err != nil {
+		log.WithError(err).Error("Failed to call RPC")
+		return nil
+	}
+
+	return info
+}
+
+func getSmartFee(blocks int) *SmartFee {
+	var info *SmartFee
+	err := rpcClient.CallFor(context.TODO(), &info, "estimatesmartfee", blocks)
 	if err != nil {
 		log.WithError(err).Error("Failed to call RPC")
 		return nil

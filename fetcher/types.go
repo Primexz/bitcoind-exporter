@@ -62,3 +62,8 @@ type NetworkInfo struct {
 	RelayFee           float64  `json:"relayfee"`
 	IncrementalFee     float64  `json:"incrementalfee"`
 }
+
+type SmartFee struct {
+	Feerate float64 `json:"feerate"`
+	Blocks  int     `json:"blocks"`
+}
