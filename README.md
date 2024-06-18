@@ -27,7 +27,7 @@ This tool is configured via environment variables. Some environment variables ar
 
 ## 💻 Grafana Dashboard
 
-tbd
+The official Grafana dashboard can be found here: https://grafana.com/grafana/dashboards/21351
 
 ## 🐳 Run with Docker
 
