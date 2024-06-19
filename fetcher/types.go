@@ -67,3 +67,9 @@ type SmartFee struct {
 	Feerate float64 `json:"feerate"`
 	Blocks  int     `json:"blocks"`
 }
+
+type NetTotals struct {
+	TotalBytesRecv int `json:"totalbytesrecv"`
+	TotalBytesSent int `json:"totalbytessent"`
+	TimeMillis     int `json:"timemillis"`
+}

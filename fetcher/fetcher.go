@@ -41,7 +41,9 @@ func run() {
 	hashRate1 := getNetworkHashrate(1)
 	hasthRate120 := getNetworkHashrate(120)
 
-	if util.AnyNil(blockChainInfo, memPoolInfo, memoryInfo, indexInfo, networkInfo, feeRate2, feeRate5, feeRate20, hasRateLatest, hashRate1, hasthRate120) {
+	netTotals := getNetTotals()
+
+	if util.AnyNil(blockChainInfo, memPoolInfo, memoryInfo, indexInfo, networkInfo, feeRate2, feeRate5, feeRate20, hasRateLatest, hashRate1, hasthRate120, netTotals) {
 		log.Error("Failed to fetch data")
 		return
 	}
@@ -73,6 +75,8 @@ func run() {
 	prometheus.TotalConnections.Set(float64(networkInfo.TotalConnections))
 	prometheus.ConnectionsIn.Set(float64(networkInfo.ConnectionsIn))
 	prometheus.ConnectionsOut.Set(float64(networkInfo.TotalConnections - networkInfo.ConnectionsIn))
+	prometheus.TotalBytesRecv.Set(float64(netTotals.TotalBytesRecv))
+	prometheus.TotalBytesSent.Set(float64(netTotals.TotalBytesSent))
 
 	//SmartFee
 	prometheus.SmartFee.With(goprom.Labels{"blocks": "2"}).Set(util.ConvertBTCkBToSatVb(feeRate2.Feerate))
@@ -160,6 +164,17 @@ func getNetworkHashrate(blocks int) float64 {
 	if err != nil {
 		log.WithError(err).Error("Failed to call RPC")
 		return 0
+	}
+
+	return info
+}
+
+func getNetTotals() *NetTotals {
+	var info *NetTotals
+	err := rpcClient.CallFor(context.TODO(), &info, "getnettotals")
+	if err != nil {
+		log.WithError(err).Error("Failed to call RPC")
+		return nil
 	}
 
 	return info
