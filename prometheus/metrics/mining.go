@@ -7,7 +7,7 @@ import (
 
 var (
 	MiningHashrate = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		Name: "mining_hashrate",
+		Name: "bitcoind_mining_hashrate",
 		Help: "Mining hashrate in hashes per second",
 	}, []string{"blocks"})
 )
