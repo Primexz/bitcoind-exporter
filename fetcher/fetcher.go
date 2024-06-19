@@ -37,7 +37,11 @@ func run() {
 	feeRate5 := getSmartFee(5)
 	feeRate20 := getSmartFee(20)
 
-	if util.AnyNil(blockChainInfo, memPoolInfo, memoryInfo, indexInfo, networkInfo, feeRate2, feeRate5, feeRate20) {
+	hasRateLatest := getNetworkHashrate(-1)
+	hashRate1 := getNetworkHashrate(1)
+	hasthRate120 := getNetworkHashrate(120)
+
+	if util.AnyNil(blockChainInfo, memPoolInfo, memoryInfo, indexInfo, networkInfo, feeRate2, feeRate5, feeRate20, hasRateLatest, hashRate1, hasthRate120) {
 		log.Error("Failed to fetch data")
 		return
 	}
@@ -70,10 +74,15 @@ func run() {
 	prometheus.ConnectionsIn.Set(float64(networkInfo.ConnectionsIn))
 	prometheus.ConnectionsOut.Set(float64(networkInfo.TotalConnections - networkInfo.ConnectionsIn))
 
-	//SmartFee with labels
+	//SmartFee
 	prometheus.SmartFee.With(goprom.Labels{"blocks": "2"}).Set(util.ConvertBTCkBToSatVb(feeRate2.Feerate))
 	prometheus.SmartFee.With(goprom.Labels{"blocks": "5"}).Set(util.ConvertBTCkBToSatVb(feeRate5.Feerate))
 	prometheus.SmartFee.With(goprom.Labels{"blocks": "20"}).Set(util.ConvertBTCkBToSatVb(feeRate20.Feerate))
+
+	//Mining
+	prometheus.MiningHashrate.With(goprom.Labels{"blocks": "-1"}).Set(hasRateLatest)
+	prometheus.MiningHashrate.With(goprom.Labels{"blocks": "1"}).Set(hashRate1)
+	prometheus.MiningHashrate.With(goprom.Labels{"blocks": "120"}).Set(hasthRate120)
 
 	//Internal
 	prometheus.ScrapeTime.Set(float64(time.Since(start).Milliseconds()))
@@ -140,6 +149,17 @@ func getSmartFee(blocks int) *SmartFee {
 	if err != nil {
 		log.WithError(err).Error("Failed to call RPC")
 		return nil
+	}
+
+	return info
+}
+
+func getNetworkHashrate(blocks int) float64 {
+	var info float64
+	err := rpcClient.CallFor(context.TODO(), &info, "getnetworkhashps", blocks)
+	if err != nil {
+		log.WithError(err).Error("Failed to call RPC")
+		return 0
 	}
 
 	return info
