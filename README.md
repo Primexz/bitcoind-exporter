@@ -34,7 +34,7 @@ The official Grafana dashboard can be found here: https://grafana.com/grafana/da
 ###  Docker-CLI
 
 ```bash
-docker run -d --name kraken_dca \
+docker run -d --name bitcoind_exporter \
   -e RPC_ADDRESS=http://127.0.0.1:8332 \
   -e RPC_USER=mempool \
   -e RPC_PASS=mempool \
@@ -51,7 +51,7 @@ vim docker-compose.yml
 ```yaml
 version: "3.8"
 services:
-  kraken_dca:
+  bitcoind_exporter:
     image: ghcr.io/primexz/bitcoind-exporter:latest
     environment:
       - RPC_ADDRESS=http://127.0.0.1:8332
