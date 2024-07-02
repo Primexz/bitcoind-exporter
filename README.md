@@ -57,7 +57,7 @@ services:
       - RPC_ADDRESS=http://127.0.0.1:8332
       - RPC_USER=mempool
       - RPC_PASS=mempool
-      - ZMQ_ADDRESS=27.0.0.1:28333
+      - ZMQ_ADDRESS=127.0.0.1:28333
     restart: always
 ```
 
