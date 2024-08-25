@@ -7,8 +7,7 @@ import (
 
 type config struct {
 	RPCAddress string `env:"RPC_ADDRESS,required"`
-	RPCUser    string `env:"RPC_USER,required"`
-	RPCPass    string `env:"RPC_PASS,required"`
+	RPCCookieFile string `env:RPC_COOKIEFIELE, required"`
 
 	ZmqAddress string `env:"ZMQ_ADDRESS"`
 
