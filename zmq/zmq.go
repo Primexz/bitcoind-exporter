@@ -3,8 +3,8 @@ package zmq
 import (
 	"context"
 
-	"github.com/Primexz/bitcoind-exporter/config"
-	prometheus "github.com/Primexz/bitcoind-exporter/prometheus/metrics"
+	"github.com/Pxrzival/bitcoind-exporter/config"
+	prometheus "github.com/Pxrzival/bitcoind-exporter/prometheus/metrics"
 	"github.com/go-zeromq/zmq4"
 	"github.com/sirupsen/logrus"
 )
