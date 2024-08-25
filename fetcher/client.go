@@ -1,25 +1,32 @@
 package fetcher
 
 import (
-	"encoding/base64"
 	"fmt"
+	"io/ioutil"
 	"strings"
 
 	"github.com/Primexz/bitcoind-exporter/config"
 	"github.com/ybbus/jsonrpc/v3"
 )
 
-// "http://my-rpc-service:8080/rpc"
+// Create RPC client with cookie-based authentication
 var rpcClient = jsonrpc.NewClientWithOpts(computeAddress(), &jsonrpc.RPCClientOpts{
 	CustomHeaders: map[string]string{
-		"Authorization": "Basic " + computeBasicAuth(),
+		"Authorization": "Basic " + computeCookieAuth(),
 	},
 })
 
-func computeBasicAuth() string {
-	return base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", config.C.RPCUser, config.C.RPCPass)))
+// Reads the RPC cookie for authentication
+func computeCookieAuth() string {
+	cookie, err := ioutil.ReadFile(config.C.RPCCookieFile)
+	if err != nil {
+		panic(fmt.Sprintf("Failed to read RPC cookie file: %v", err))
+	}
+	// The cookie file typically contains the format: <username>:<password>
+	return strings.TrimSpace(string(cookie))
 }
 
+// Computes the RPC server address
 func computeAddress() string {
 	address := config.C.RPCAddress
 
