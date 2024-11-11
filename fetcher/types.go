@@ -1,19 +1,39 @@
 package fetcher
 
+import "encoding/json"
+
+type StringOrArray []string
+
+// UnmarshalJSON implements json.Unmarshaler interface
+func (sa *StringOrArray) UnmarshalJSON(data []byte) error {
+	var strings []string
+	if err := json.Unmarshal(data, &strings); err == nil {
+		*sa = strings
+		return nil
+	}
+
+	var str string
+	if err := json.Unmarshal(data, &str); err != nil {
+		return err
+	}
+	*sa = []string{str}
+	return nil
+}
+
 type BlockchainInfo struct {
-	Chain                string  `json:"chain"`
-	Blocks               int     `json:"blocks"`
-	Headers              int     `json:"headers"`
-	BestBlockhash        string  `json:"bestblockhash"`
-	Difficulty           float64 `json:"difficulty"`
-	Time                 int     `json:"time"`
-	MedianTime           int     `json:"mediantime"`
-	VerificationProgress float64 `json:"verificationprogress"`
-	InitialBlockDownload bool    `json:"initialblockdownload"`
-	ChainWork            string  `json:"chainwork"`
-	SizeOnDisk           int     `json:"size_on_disk"`
-	Pruned               bool    `json:"pruned"`
-	Warnings             string  `json:"warnings"`
+	Chain                string        `json:"chain"`
+	Blocks               int           `json:"blocks"`
+	Headers              int           `json:"headers"`
+	BestBlockhash        string        `json:"bestblockhash"`
+	Difficulty           float64       `json:"difficulty"`
+	Time                 int           `json:"time"`
+	MedianTime           int           `json:"mediantime"`
+	VerificationProgress float64       `json:"verificationprogress"`
+	InitialBlockDownload bool          `json:"initialblockdownload"`
+	ChainWork            string        `json:"chainwork"`
+	SizeOnDisk           int           `json:"size_on_disk"`
+	Pruned               bool          `json:"pruned"`
+	Warnings             StringOrArray `json:"warnings"`
 }
 
 type MempoolInfo struct {
