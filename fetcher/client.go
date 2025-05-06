@@ -1,11 +1,12 @@
 package fetcher
 
 import (
-	"encoding/base64"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/Primexz/bitcoind-exporter/config"
+	"github.com/Primexz/bitcoind-exporter/util"
 	"github.com/ybbus/jsonrpc/v3"
 )
 
@@ -17,13 +18,33 @@ var rpcClient = jsonrpc.NewClientWithOpts(computeAddress(), &jsonrpc.RPCClientOp
 })
 
 func computeBasicAuth() string {
-	return base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", config.C.RPCUser, config.C.RPCPass)))
+	user := config.C.RPCUser
+	pass := config.C.RPCPass
+	cookieFile := config.C.RPCCookieFile
+
+	if cookieFile != "" {
+		cookie, err := os.ReadFile(cookieFile)
+		if err != nil {
+			log.WithError(err).Fatal("Failed to read cookie file")
+			return ""
+		}
+		cookieStr := strings.TrimSpace(string(cookie))
+
+		if !strings.Contains(cookieStr, ":") {
+			log.WithError(err).Fatal("Invalid cookie file format")
+			return ""
+		}
+
+		return util.StringToBase64(cookieStr)
+	}
+
+	return util.StringToBase64(fmt.Sprintf("%s:%s", user, pass))
 }
 
 func computeAddress() string {
 	address := config.C.RPCAddress
 
-	if strings.HasPrefix(address, "http://") {
+	if strings.HasPrefix(address, "http://") || strings.HasPrefix(address, "https://") {
 		return address
 	} else {
 		return fmt.Sprintf("http://%s", address)

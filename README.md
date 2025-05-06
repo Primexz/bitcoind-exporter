@@ -9,21 +9,22 @@
 
 A Prometheus Exporter, which provides a deep insight into a Bitcoin full node.
 
-
 ## ⚙️ Configuration
 
 This tool is configured via environment variables. Some environment variables are required and some activate additional functionalities.
-
 
 | Variable | Description | Required | Default |
 | --- | --- | --- | --- |
 | `RPC_ADDRESS` | The RPC address for the Bitcoin full node, e.g. ``http://127.0.0.1:8332`` | ✅ | |
 | `RPC_USER` |The user name that was defined in the Bitcoin Node configuration | ✅ | |
 | `RPC_PASS` | The password that was set in the Bitcoin Node configuration | ✅  |  |
+| `RPC_COOKIE_FILE` | The path to the cookie file | ✅  |  |
 | `ZMQ_ADDRESS` | The address to the ZeroMQ interface of the Bitcoin Fullnode. This variable is required to determine the transcation rates. e.g. ``127.0.0.1:28333`` | ❌ |  |
 | `FETCH_INTERVAL` | The interval at which the metrics are to be recalculated. | ❌ | `10` |
 | `METRIC_PORT` | The port via which the metrics are provided. | ❌ | `3000` |
 | `LOG_LEVEL` | The log level for the service | ❌ | `info` |
+
+Please note that either `RPC_USER` and `RPC_PASS` or `RPC_COOKIE_FILE` must be set.
 
 ## 💻 Grafana Dashboard
 
@@ -39,6 +40,7 @@ docker run -d --name bitcoind_exporter \
   -e RPC_USER=mempool \
   -e RPC_PASS=mempool \
   -e ZMQ_ADDRESS=127.0.0.1:28333 \
+  -v /path/to/cookie/.cookie:/.cookie:ro \
    ghcr.io/primexz/bitcoind-exporter:latest
 ```
 
@@ -58,6 +60,9 @@ services:
       - RPC_USER=mempool
       - RPC_PASS=mempool
       - ZMQ_ADDRESS=127.0.0.1:28333
+    # Optional, only necessary if Cookie-Auth is to be used
+    volumes:
+      - /path/to/cookie/.cookie:/.cookie:ro
     restart: always
 ```
 

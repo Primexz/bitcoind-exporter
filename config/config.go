@@ -7,8 +7,10 @@ import (
 
 type config struct {
 	RPCAddress string `env:"RPC_ADDRESS,required"`
-	RPCUser    string `env:"RPC_USER,required"`
-	RPCPass    string `env:"RPC_PASS,required"`
+
+	RPCUser       string `env:"RPC_USER"`
+	RPCPass       string `env:"RPC_PASS"`
+	RPCCookieFile string `env:"RPC_COOKIE_FILE"`
 
 	ZmqAddress string `env:"ZMQ_ADDRESS"`
 
@@ -38,4 +40,7 @@ func loadConfiguration() {
 		log.Fatal(err)
 	}
 
+	if C.RPCUser == "" && C.RPCPass == "" && C.RPCCookieFile == "" {
+		log.Fatal("RPC_USER and RPC_PASS or RPC_COOKIE_FILE must be set")
+	}
 }

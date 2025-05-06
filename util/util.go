@@ -1,6 +1,9 @@
 package util
 
-import "reflect"
+import (
+	"encoding/base64"
+	"reflect"
+)
 
 func BoolToFloat64(b bool) float64 {
 	if b {
@@ -24,4 +27,8 @@ func AnyNil(params ...interface{}) bool {
 		}
 	}
 	return false
+}
+
+func StringToBase64(s string) string {
+	return base64.StdEncoding.EncodeToString([]byte(s))
 }
