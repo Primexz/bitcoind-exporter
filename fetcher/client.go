@@ -23,6 +23,7 @@ func computeBasicAuth() string {
 	cookieFile := config.C.RPCCookieFile
 
 	if cookieFile != "" {
+		//gosec:disable G304 -- Configured by the user
 		cookie, err := os.ReadFile(cookieFile)
 		if err != nil {
 			log.WithError(err).Fatal("Failed to read cookie file")
