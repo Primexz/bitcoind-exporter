@@ -10,12 +10,21 @@ import (
 	"github.com/ybbus/jsonrpc/v3"
 )
 
-// "http://my-rpc-service:8080/rpc"
-var rpcClient = jsonrpc.NewClientWithOpts(computeAddress(), &jsonrpc.RPCClientOpts{
-	CustomHeaders: map[string]string{
-		"Authorization": "Basic " + computeBasicAuth(),
-	},
-})
+type Client struct {
+	RpcClient jsonrpc.RPCClient
+}
+
+func NewClient() *Client {
+	client := jsonrpc.NewClientWithOpts(computeAddress(), &jsonrpc.RPCClientOpts{
+		CustomHeaders: map[string]string{
+			"Authorization": "Basic " + computeBasicAuth(),
+		},
+	})
+
+	return &Client{
+		RpcClient: client,
+	}
+}
 
 func computeBasicAuth() string {
 	user := config.C.RPCUser

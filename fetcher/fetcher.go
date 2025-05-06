@@ -18,30 +18,40 @@ var log = logrus.WithFields(logrus.Fields{
 
 func Start() {
 	for {
-		run()
+		NewRunner().run()
 
 		time.Sleep(time.Duration(config.C.FetchInterval) * time.Second)
 	}
 }
 
-func run() {
+type Runner struct {
+	client *Client
+}
+
+func NewRunner() *Runner {
+	return &Runner{
+		client: NewClient(),
+	}
+}
+
+func (r *Runner) run() {
 	start := time.Now()
 
-	blockChainInfo := getBlockchainInfo()
-	memPoolInfo := getMempoolInfo()
-	memoryInfo := getMemoryInfo()
-	indexInfo := getIndexInfo()
-	networkInfo := getNetworkInfo()
+	blockChainInfo := r.getBlockchainInfo()
+	memPoolInfo := r.getMempoolInfo()
+	memoryInfo := r.getMemoryInfo()
+	indexInfo := r.getIndexInfo()
+	networkInfo := r.getNetworkInfo()
 
-	feeRate2 := getSmartFee(2)
-	feeRate5 := getSmartFee(5)
-	feeRate20 := getSmartFee(20)
+	feeRate2 := r.getSmartFee(2)
+	feeRate5 := r.getSmartFee(5)
+	feeRate20 := r.getSmartFee(20)
 
-	hasRateLatest := getNetworkHashrate(-1)
-	hashRate1 := getNetworkHashrate(1)
-	hasthRate120 := getNetworkHashrate(120)
+	hasRateLatest := r.getNetworkHashrate(-1)
+	hashRate1 := r.getNetworkHashrate(1)
+	hasthRate120 := r.getNetworkHashrate(120)
 
-	netTotals := getNetTotals()
+	netTotals := r.getNetTotals()
 
 	if util.AnyNil(blockChainInfo, memPoolInfo, memoryInfo, indexInfo, networkInfo, feeRate2, feeRate5, feeRate20, hasRateLatest, hashRate1, hasthRate120, netTotals) {
 		log.Error("Failed to fetch data")
@@ -92,9 +102,9 @@ func run() {
 	prometheus.ScrapeTime.Set(float64(time.Since(start).Milliseconds()))
 }
 
-func getBlockchainInfo() *BlockchainInfo {
+func (r *Runner) getBlockchainInfo() *BlockchainInfo {
 	var info *BlockchainInfo
-	err := rpcClient.CallFor(context.TODO(), &info, "getblockchaininfo")
+	err := r.client.RpcClient.CallFor(context.TODO(), &info, "getblockchaininfo")
 	if err != nil {
 		log.WithError(err).Error("Failed to call RPC")
 		return nil
@@ -103,9 +113,9 @@ func getBlockchainInfo() *BlockchainInfo {
 	return info
 }
 
-func getMempoolInfo() *MempoolInfo {
+func (r *Runner) getMempoolInfo() *MempoolInfo {
 	var info *MempoolInfo
-	err := rpcClient.CallFor(context.TODO(), &info, "getmempoolinfo")
+	err := r.client.RpcClient.CallFor(context.TODO(), &info, "getmempoolinfo")
 	if err != nil {
 		log.WithError(err).Error("Failed to call RPC")
 		return nil
@@ -114,9 +124,9 @@ func getMempoolInfo() *MempoolInfo {
 	return info
 }
 
-func getMemoryInfo() *MemoryInfo {
+func (r *Runner) getMemoryInfo() *MemoryInfo {
 	var info *MemoryInfo
-	err := rpcClient.CallFor(context.TODO(), &info, "getmemoryinfo")
+	err := r.client.RpcClient.CallFor(context.TODO(), &info, "getmemoryinfo")
 	if err != nil {
 		log.WithError(err).Error("Failed to call RPC")
 		return nil
@@ -125,9 +135,9 @@ func getMemoryInfo() *MemoryInfo {
 	return info
 }
 
-func getIndexInfo() *IndexInfo {
+func (r *Runner) getIndexInfo() *IndexInfo {
 	var info *IndexInfo
-	err := rpcClient.CallFor(context.TODO(), &info, "getindexinfo")
+	err := r.client.RpcClient.CallFor(context.TODO(), &info, "getindexinfo")
 	if err != nil {
 		log.WithError(err).Error("Failed to call RPC")
 		return nil
@@ -136,9 +146,9 @@ func getIndexInfo() *IndexInfo {
 	return info
 }
 
-func getNetworkInfo() *NetworkInfo {
+func (r *Runner) getNetworkInfo() *NetworkInfo {
 	var info *NetworkInfo
-	err := rpcClient.CallFor(context.TODO(), &info, "getnetworkinfo")
+	err := r.client.RpcClient.CallFor(context.TODO(), &info, "getnetworkinfo")
 	if err != nil {
 		log.WithError(err).Error("Failed to call RPC")
 		return nil
@@ -147,9 +157,9 @@ func getNetworkInfo() *NetworkInfo {
 	return info
 }
 
-func getSmartFee(blocks int) *SmartFee {
+func (r *Runner) getSmartFee(blocks int) *SmartFee {
 	var info *SmartFee
-	err := rpcClient.CallFor(context.TODO(), &info, "estimatesmartfee", blocks)
+	err := r.client.RpcClient.CallFor(context.TODO(), &info, "estimatesmartfee", blocks)
 	if err != nil {
 		log.WithError(err).Error("Failed to call RPC")
 		return nil
@@ -158,9 +168,9 @@ func getSmartFee(blocks int) *SmartFee {
 	return info
 }
 
-func getNetworkHashrate(blocks int) float64 {
+func (r *Runner) getNetworkHashrate(blocks int) float64 {
 	var info float64
-	err := rpcClient.CallFor(context.TODO(), &info, "getnetworkhashps", blocks)
+	err := r.client.RpcClient.CallFor(context.TODO(), &info, "getnetworkhashps", blocks)
 	if err != nil {
 		log.WithError(err).Error("Failed to call RPC")
 		return 0
@@ -169,9 +179,9 @@ func getNetworkHashrate(blocks int) float64 {
 	return info
 }
 
-func getNetTotals() *NetTotals {
+func (r *Runner) getNetTotals() *NetTotals {
 	var info *NetTotals
-	err := rpcClient.CallFor(context.TODO(), &info, "getnettotals")
+	err := r.client.RpcClient.CallFor(context.TODO(), &info, "getnettotals")
 	if err != nil {
 		log.WithError(err).Error("Failed to call RPC")
 		return nil
